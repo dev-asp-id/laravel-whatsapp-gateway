@@ -4,15 +4,18 @@ namespace Devaspid\WhatsappGateway;
 
 use Devaspid\WhatsappGateway\Contracts\WhatsappGatewayInterface;
 use Devaspid\WhatsappGateway\DTOs\MessageResult;
+use Devaspid\WhatsappGateway\DTOs\UserCheckResult;
 use Devaspid\WhatsappGateway\Messages\WhatsappMediaMessage;
 use Devaspid\WhatsappGateway\Services\DeviceService;
 use Devaspid\WhatsappGateway\Services\MessageService;
+use Devaspid\WhatsappGateway\Services\UserService;
 
 class WhatsappGateway implements WhatsappGatewayInterface
 {
     protected WhatsappClient $client;
     protected MessageService $messageService;
     protected DeviceService $deviceService;
+    protected UserService $userService;
 
     // Fluent builder state
     protected ?string $phone = null;
@@ -22,6 +25,7 @@ class WhatsappGateway implements WhatsappGatewayInterface
 
     // Media state
     protected ?string $imageUrl = null;
+    protected ?string $videoUrl = null;
     protected ?string $audioUrl = null;
     protected ?string $fileUrl = null;
     protected ?string $captionText = null;
@@ -33,6 +37,7 @@ class WhatsappGateway implements WhatsappGatewayInterface
         $this->client         = new WhatsappClient($config);
         $this->messageService = new MessageService($this->client);
         $this->deviceService  = new DeviceService($this->client);
+        $this->userService    = new UserService($this->client);
     }
 
     // ─── Quick Send / Terminal Fluent Send ──────────────────────────
@@ -96,6 +101,13 @@ class WhatsappGateway implements WhatsappGatewayInterface
         return $this;
     }
 
+    public function video(string $url): static
+    {
+        $this->videoUrl = $url;
+
+        return $this;
+    }
+
     public function audio(string $url): static
     {
         $this->audioUrl = $url;
@@ -142,7 +154,7 @@ class WhatsappGateway implements WhatsappGatewayInterface
         $device = $this->deviceId ?? $this->config['default_device_id'] ?? null;
 
         // Jika ada media, kirim sebagai media message
-        if ($this->imageUrl || $this->audioUrl || $this->fileUrl) {
+        if ($this->imageUrl || $this->videoUrl || $this->audioUrl || $this->fileUrl) {
             $media = (new WhatsappMediaMessage())
                 ->to($this->phone);
 
@@ -152,6 +164,9 @@ class WhatsappGateway implements WhatsappGatewayInterface
 
             if ($this->imageUrl) {
                 $media->image($this->imageUrl);
+            }
+            if ($this->videoUrl) {
+                $media->video($this->videoUrl);
             }
             if ($this->audioUrl) {
                 $media->audio($this->audioUrl);
@@ -188,6 +203,26 @@ class WhatsappGateway implements WhatsappGatewayInterface
         return $result;
     }
 
+    // ─── User Validation ────────────────────────────────────────────
+
+    /**
+     * Memvalidasi apakah suatu nomor telepon terdaftar di WhatsApp.
+     */
+    public function checkUser(string $phone, ?string $deviceId = null): UserCheckResult
+    {
+        $device = $deviceId ?? $this->config['default_device_id'] ?? null;
+
+        return $this->userService->check($phone, $device);
+    }
+
+    /**
+     * Cek cepat (boolean) apakah suatu nomor terdaftar di WhatsApp.
+     */
+    public function isRegistered(string $phone, ?string $deviceId = null): bool
+    {
+        return $this->checkUser($phone, $deviceId)->isOnWhatsapp();
+    }
+
     // ─── Service Accessors ──────────────────────────────────────────
 
     public function devices(): DeviceService
@@ -198,6 +233,11 @@ class WhatsappGateway implements WhatsappGatewayInterface
     public function messages(): MessageService
     {
         return $this->messageService;
+    }
+
+    public function user(): UserService
+    {
+        return $this->userService;
     }
 
     public function getClient(): WhatsappClient
@@ -223,6 +263,7 @@ class WhatsappGateway implements WhatsappGatewayInterface
         $this->replyMessageId = null;
         $this->content        = null;
         $this->imageUrl       = null;
+        $this->videoUrl       = null;
         $this->audioUrl       = null;
         $this->fileUrl        = null;
         $this->captionText    = null;

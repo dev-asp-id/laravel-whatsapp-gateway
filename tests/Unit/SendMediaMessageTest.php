@@ -89,4 +89,35 @@ class SendMediaMessageTest extends TestCase
             return $request['audio'] === 'https://example.com/voice.mp3';
         });
     }
+
+    public function test_send_video_message(): void
+    {
+        Http::fake([
+            'wa-gateway.test/api/v1/messages/media' => Http::response([
+                'success' => true,
+                'message' => 'Message sent successfully.',
+                'data' => [
+                    'message_id' => 'VID_MSG_001',
+                    'status' => 'success',
+                ],
+            ], 200),
+        ]);
+
+        $result = Whatsapp::to('6281234567890')
+            ->video('https://example.com/video.mp4')
+            ->caption('Tutorial Video')
+            ->viewOnce(false)
+            ->sendMessage();
+
+        $this->assertTrue($result->successful());
+        $this->assertEquals('VID_MSG_001', $result->messageId());
+
+        Http::assertSent(function ($request) {
+            return str_contains($request->url(), '/messages/media')
+                && $request['phone'] === '6281234567890'
+                && $request['video'] === 'https://example.com/video.mp4'
+                && $request['caption'] === 'Tutorial Video'
+                && $request['view_once'] === false;
+        });
+    }
 }

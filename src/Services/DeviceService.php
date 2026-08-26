@@ -5,6 +5,7 @@ namespace Devaspid\WhatsappGateway\Services;
 use Devaspid\WhatsappGateway\DTOs\DeviceData;
 use Devaspid\WhatsappGateway\DTOs\DeviceStatusData;
 use Devaspid\WhatsappGateway\DTOs\QrLoginResult;
+use Devaspid\WhatsappGateway\DTOs\UserCheckResult;
 use Devaspid\WhatsappGateway\WhatsappClient;
 
 class DeviceService
@@ -106,5 +107,17 @@ class DeviceService
         $response = $this->client->get("/devices/{$device}/status");
 
         return DeviceStatusData::fromArray($response);
+    }
+
+    /**
+     * Memeriksa apakah suatu nomor telepon terdaftar di WhatsApp melalui device ini.
+     */
+    public function checkUser(string $device, string $phone): UserCheckResult
+    {
+        $response = $this->client->get("/devices/{$device}/user/check", [
+            'phone' => $phone,
+        ]);
+
+        return UserCheckResult::fromArray($response);
     }
 }

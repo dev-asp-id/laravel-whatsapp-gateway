@@ -3,8 +3,10 @@
 namespace Devaspid\WhatsappGateway\Facades;
 
 use Devaspid\WhatsappGateway\DTOs\MessageResult;
+use Devaspid\WhatsappGateway\DTOs\UserCheckResult;
 use Devaspid\WhatsappGateway\Services\DeviceService;
 use Devaspid\WhatsappGateway\Services\MessageService;
+use Devaspid\WhatsappGateway\Services\UserService;
 use Devaspid\WhatsappGateway\WhatsappGateway;
 use Illuminate\Support\Facades\Facade;
 
@@ -15,14 +17,18 @@ use Illuminate\Support\Facades\Facade;
  * @method static WhatsappGateway replyTo(string $messageId)
  * @method static WhatsappGateway message(string $content)
  * @method static WhatsappGateway image(string $url)
+ * @method static WhatsappGateway video(string $url)
  * @method static WhatsappGateway audio(string $url)
  * @method static WhatsappGateway file(string $url)
  * @method static WhatsappGateway caption(string $caption)
  * @method static WhatsappGateway filename(string $filename)
  * @method static WhatsappGateway viewOnce(bool $viewOnce = true)
  * @method static MessageResult sendMessage()
+ * @method static UserCheckResult checkUser(string $phone, ?string $deviceId = null)
+ * @method static bool isRegistered(string $phone, ?string $deviceId = null)
  * @method static DeviceService devices()
  * @method static MessageService messages()
+ * @method static UserService user()
  * @method static bool ping()
  *
  * @see \Devaspid\WhatsappGateway\WhatsappGateway

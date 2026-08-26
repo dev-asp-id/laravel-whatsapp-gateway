@@ -8,11 +8,12 @@ Package Laravel untuk integrasi dengan WhatsApp Gateway API [wa-api-by-asp](http
 ## ✨ Fitur
 
 - 📨 **Kirim Pesan Teks** — Quick send & Fluent API builder
-- 🖼️ **Kirim Media** — Gambar, Audio/Voice Note, Dokumen (PDF/Excel/ZIP)
+- 🖼️ **Kirim Media** — Gambar, Video, Audio/Voice Note, Dokumen (PDF/Excel/ZIP)
+- 🔍 **Cek Nomor Terdaftar** — Validasi nomor aktif di WhatsApp sebelum kirim pesan
 - 📱 **Device Management** — List, Create, QR Login, Pairing Code, Logout, Reconnect, Status
 - 🔔 **Laravel Notification Channel** — Kirim notifikasi via `$user->notify()`
 - 🛡️ **Typed Exceptions** — `AuthenticationException`, `ValidationException`, `DeviceNotFoundException`, dll.
-- 📦 **Strongly-typed DTOs** — `MessageResult`, `DeviceData`, `QrLoginResult`
+- 📦 **Strongly-typed DTOs** — `MessageResult`, `DeviceData`, `UserCheckResult`, `QrLoginResult`
 - ⚡ **Auto-discovery** — Service Provider & Facade otomatis terdaftar
 
 ## 📋 Persyaratan
@@ -56,6 +57,29 @@ if (Whatsapp::ping()) {
 }
 ```
 
+### Cek Nomor Terdaftar di WhatsApp
+
+Validasi apakah nomor telepon tujuan aktif dan terdaftar di WhatsApp sebelum mengirim pesan:
+
+```php
+use Devaspid\WhatsappGateway\Facades\Whatsapp;
+
+// Cek cepat (mengembalikan boolean)
+if (Whatsapp::isRegistered('6281234567890')) {
+    // Nomor aktif di WhatsApp
+}
+
+// Cek detail dengan DTO
+$result = Whatsapp::checkUser('6281234567890');
+
+if ($result->isOnWhatsapp()) {
+    echo "Nomor {$result->phone} terdaftar! JID: {$result->jid}";
+}
+
+// Cek menggunakan device tertentu
+$result = Whatsapp::devices()->checkUser('dev_01m0xyz...', '6281234567890');
+```
+
 ### Kirim Pesan Teks
 
 ```php
@@ -69,7 +93,7 @@ $result = Whatsapp::to('6281234567890')
     ->usingDevice('dev_01m0xyz...')  // opsional
     ->replyTo('3EB0B430B6F...')      // opsional, quote reply
     ->message('Terima kasih telah berbelanja!')
-    ->sendMessage();
+    ->send();
 
 // Cek hasil
 if ($result->successful()) {
@@ -85,23 +109,32 @@ Whatsapp::to('6281234567890')
     ->image('https://example.com/nota.png')
     ->caption('Bukti Pembayaran #INV-12345')
     ->viewOnce(false)
-    ->sendMessage();
+    ->send();
 ```
 
-#### Dokumen PDF
+#### Video
+```php
+Whatsapp::to('6281234567890')
+    ->video('https://example.com/tutorial.mp4')
+    ->caption('Berikut video panduan.')
+    ->viewOnce(false)
+    ->send();
+```
+
+#### Dokumen PDF / DOCX / XLSX / ZIP
 ```php
 Whatsapp::to('6281234567890')
     ->file('https://example.com/laporan.pdf')
     ->filename('Laporan_Tahunan_2026.pdf')
     ->caption('Silakan unduh dokumen terlampir.')
-    ->sendMessage();
+    ->send();
 ```
 
 #### Audio / Voice Note
 ```php
 Whatsapp::to('6281234567890')
     ->audio('https://example.com/voice-greeting.mp3')
-    ->sendMessage();
+    ->send();
 ```
 
 ### Device Management
@@ -248,7 +281,8 @@ src/
 │   ├── DeviceData.php                  # DTO Device
 │   ├── DeviceStatusData.php            # DTO Status Device
 │   ├── MessageResult.php               # DTO Hasil Pengiriman
-│   └── QrLoginResult.php               # DTO QR Code
+│   ├── QrLoginResult.php               # DTO QR Code
+│   └── UserCheckResult.php             # DTO Cek Nomor WhatsApp
 ├── Exceptions/
 │   ├── AuthenticationException.php     # 401
 │   ├── DeviceNotFoundException.php     # 404
@@ -263,7 +297,8 @@ src/
 │   └── WhatsappMediaMessage.php        # Fluent builder media
 ├── Services/
 │   ├── DeviceService.php               # Device management
-│   └── MessageService.php              # Pengiriman pesan
+│   ├── MessageService.php              # Pengiriman pesan & media
+│   └── UserService.php                 # Cek user / validasi nomor
 ├── WhatsappClient.php                  # HTTP Client wrapper
 ├── WhatsappGateway.php                 # Core Manager
 └── WhatsappServiceProvider.php         # Service Provider

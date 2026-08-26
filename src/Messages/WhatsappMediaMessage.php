@@ -11,6 +11,7 @@ class WhatsappMediaMessage
     protected ?string $deviceId = null;
 
     protected ?string $imageUrl = null;
+    protected ?string $videoUrl = null;
     protected ?string $audioUrl = null;
     protected ?string $fileUrl = null;
     protected ?string $captionText = null;
@@ -39,6 +40,13 @@ class WhatsappMediaMessage
     public function image(string $url): static
     {
         $this->imageUrl = $url;
+
+        return $this;
+    }
+
+    public function video(string $url): static
+    {
+        $this->videoUrl = $url;
 
         return $this;
     }
@@ -95,6 +103,7 @@ class WhatsappMediaMessage
     {
         return array_filter([
             'image'     => $this->imageUrl,
+            'video'     => $this->videoUrl,
             'audio'     => $this->audioUrl,
             'file'      => $this->fileUrl,
             'caption'   => $this->captionText,
