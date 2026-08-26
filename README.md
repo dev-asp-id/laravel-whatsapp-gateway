@@ -3,7 +3,7 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/devaspid/laravel-whatsapp-gateway.svg?style=flat-square)](https://packagist.org/packages/devaspid/laravel-whatsapp-gateway)
 [![License](https://img.shields.io/packagist/l/devaspid/laravel-whatsapp-gateway.svg?style=flat-square)](https://packagist.org/packages/devaspid/laravel-whatsapp-gateway)
 
-Laravel SDK Client untuk **WhatsApp Gateway API** (`wa-api-by-asp`). Package ini menyediakan antarmuka yang bersih dan modern untuk mengirim pesan WhatsApp, mengelola device, dan integrasi dengan Laravel Notification System.
+Package Laravel untuk integrasi dengan WhatsApp Gateway API [wa-api-by-asp](https://wa-gateway.asp.web.id/). Package ini menyediakan antarmuka yang bersih, modular, dan modern untuk mengirim pesan WhatsApp, mengelola device, serta integrasi penuh dengan Laravel Notification System.
 
 ## ✨ Fitur
 

@@ -1,6 +1,6 @@
 {
     "name": "devaspid/laravel-whatsapp-gateway",
-    "description": "Laravel SDK Client for WhatsApp Gateway API (wa-api-by-asp). Supports text messages, media, device management, and Laravel Notification Channel.",
+    "description": "Laravel package for WhatsApp Gateway API (wa-api-by-asp / https://wa-gateway.asp.web.id). Supports text messages, media, device management, and Laravel Notification Channel.",
     "keywords": [
         "laravel",
         "whatsapp",
