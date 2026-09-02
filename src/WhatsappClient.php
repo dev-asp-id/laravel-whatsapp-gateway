@@ -65,6 +65,43 @@ class WhatsappClient
         return $this->handleResponse($response);
     }
 
+    public function postMultipart(string $endpoint, array $data = [], array $attachments = []): array
+    {
+        try {
+            $client = Http::baseUrl($this->config['base_url'])
+                ->withHeaders([
+                    'X-Client-Id' => $this->config['client_id'],
+                    'X-Api-Key'   => $this->config['api_key'],
+                    'Accept'      => 'application/json',
+                ])
+                ->timeout($this->config['timeout'] ?? 15)
+                ->asMultipart();
+
+            if (($this->config['retry']['times'] ?? 0) > 0) {
+                $client = $client->retry(
+                    $this->config['retry']['times'],
+                    $this->config['retry']['sleep'] ?? 500,
+                    fn (\Exception $e) => $e instanceof ConnectionException,
+                );
+            }
+
+            foreach ($attachments as $attachment) {
+                $client->attach(
+                    $attachment['name'],
+                    $attachment['contents'],
+                    $attachment['filename'] ?? null,
+                    $attachment['headers'] ?? []
+                );
+            }
+
+            $response = $client->post($endpoint, $data);
+        } catch (ConnectionException $e) {
+            throw new GatewayConnectionException($e->getMessage());
+        }
+
+        return $this->handleResponse($response);
+    }
+
     public function delete(string $endpoint): array
     {
         try {

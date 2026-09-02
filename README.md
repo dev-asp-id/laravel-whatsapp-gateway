@@ -101,39 +101,70 @@ if ($result->successful()) {
 }
 ```
 
-### Kirim Media
+### Kirim Media (Gambar, Video, Audio, Dokumen)
 
-#### Gambar dengan Caption
+Package ini secara otomatis mendeteksi format file yang Anda kirim:
+1. **URL Publik** (`https://...` / `http://...`) — Dikirim via JSON
+2. **File Fisik Lokal / Upload** (`UploadedFile`, `SplFileInfo`, path string) — Dikirim via `multipart/form-data`
+3. **Base64 Data URI** (`data:...;base64,...`) — Dikirim via JSON
+
+#### A. Menggunakan URL Publik
 ```php
+// Gambar
 Whatsapp::to('6281234567890')
     ->image('https://example.com/nota.png')
     ->caption('Bukti Pembayaran #INV-12345')
     ->viewOnce(false)
     ->send();
-```
 
-#### Video
-```php
+// Video
 Whatsapp::to('6281234567890')
     ->video('https://example.com/tutorial.mp4')
     ->caption('Berikut video panduan.')
     ->viewOnce(false)
     ->send();
-```
 
-#### Dokumen PDF / DOCX / XLSX / ZIP
-```php
+// Dokumen PDF / DOCX / XLSX / ZIP
 Whatsapp::to('6281234567890')
-    ->file('https://example.com/laporan.pdf')
-    ->filename('Laporan_Tahunan_2026.pdf')
+    ->document('https://example.com/laporan.pdf', 'Laporan_Tahunan_2026.pdf')
     ->caption('Silakan unduh dokumen terlampir.')
+    ->send();
+
+// Audio / Voice Note
+Whatsapp::to('6281234567890')
+    ->audio('https://example.com/voice-greeting.mp3')
     ->send();
 ```
 
-#### Audio / Voice Note
+#### B. Mengunggah File Fisik Langsung (Multipart Upload)
+Gunakan format ini untuk file sensitif lokal (misal dari Controller upload `$request->file('...')` atau storage lokal):
+
+```php
+use Illuminate\Http\Request;
+
+// Dari Form Upload (UploadedFile)
+public function sendInvoice(Request $request)
+{
+    $file = $request->file('invoice'); // UploadedFile
+
+    Whatsapp::to('6281234567890')
+        ->document($file, 'Invoice_Resmi.pdf')
+        ->caption('Berikut invoice resmi Anda.')
+        ->send();
+}
+
+// Dari Path Penyimpanan Lokal
+Whatsapp::to('6281234567890')
+    ->document(storage_path('app/invoices/INV-001.pdf'), 'Invoice_001.pdf')
+    ->caption('Berikut slip pembayaran Anda.')
+    ->send();
+```
+
+#### C. Menggunakan Base64 Data URI
 ```php
 Whatsapp::to('6281234567890')
-    ->audio('https://example.com/voice-greeting.mp3')
+    ->document('data:application/pdf;base64,JVBERi0xLjQKJcTl8uXr...', 'Bukti.pdf')
+    ->caption('Bukti transaksi Anda.')
     ->send();
 ```
 

@@ -24,10 +24,10 @@ class WhatsappGateway implements WhatsappGatewayInterface
     protected ?string $content = null;
 
     // Media state
-    protected ?string $imageUrl = null;
-    protected ?string $videoUrl = null;
-    protected ?string $audioUrl = null;
-    protected ?string $fileUrl = null;
+    protected mixed $imageContent = null;
+    protected mixed $videoContent = null;
+    protected mixed $audioContent = null;
+    protected mixed $fileContent = null;
     protected ?string $captionText = null;
     protected ?string $filenameText = null;
     protected ?bool $viewOnceFlag = null;
@@ -94,32 +94,56 @@ class WhatsappGateway implements WhatsappGatewayInterface
 
     // ─── Media Fluent ───────────────────────────────────────────────
 
-    public function image(string $url): static
+    /**
+     * Set file gambar (URL publik, Base64 data URI, file path lokal, SplFileInfo, atau UploadedFile).
+     */
+    public function image(mixed $content): static
     {
-        $this->imageUrl = $url;
+        $this->imageContent = $content;
 
         return $this;
     }
 
-    public function video(string $url): static
+    /**
+     * Set file video (URL publik, Base64 data URI, file path lokal, SplFileInfo, atau UploadedFile).
+     */
+    public function video(mixed $content): static
     {
-        $this->videoUrl = $url;
+        $this->videoContent = $content;
 
         return $this;
     }
 
-    public function audio(string $url): static
+    /**
+     * Set file audio / voice note (URL publik, Base64 data URI, file path lokal, SplFileInfo, atau UploadedFile).
+     */
+    public function audio(mixed $content): static
     {
-        $this->audioUrl = $url;
+        $this->audioContent = $content;
 
         return $this;
     }
 
-    public function file(string $url): static
+    /**
+     * Set dokumen / file (URL publik, Base64 data URI, file path lokal, SplFileInfo, atau UploadedFile).
+     */
+    public function file(mixed $content, ?string $filename = null): static
     {
-        $this->fileUrl = $url;
+        $this->fileContent = $content;
+
+        if ($filename !== null) {
+            $this->filenameText = $filename;
+        }
 
         return $this;
+    }
+
+    /**
+     * Alias untuk file().
+     */
+    public function document(mixed $content, ?string $filename = null): static
+    {
+        return $this->file($content, $filename);
     }
 
     public function caption(string $caption): static
@@ -154,7 +178,7 @@ class WhatsappGateway implements WhatsappGatewayInterface
         $device = $this->deviceId ?? $this->config['default_device_id'] ?? null;
 
         // Jika ada media, kirim sebagai media message
-        if ($this->imageUrl || $this->videoUrl || $this->audioUrl || $this->fileUrl) {
+        if ($this->imageContent || $this->videoContent || $this->audioContent || $this->fileContent) {
             $media = (new WhatsappMediaMessage())
                 ->to($this->phone);
 
@@ -162,17 +186,17 @@ class WhatsappGateway implements WhatsappGatewayInterface
                 $media->usingDevice($device);
             }
 
-            if ($this->imageUrl) {
-                $media->image($this->imageUrl);
+            if ($this->imageContent) {
+                $media->image($this->imageContent);
             }
-            if ($this->videoUrl) {
-                $media->video($this->videoUrl);
+            if ($this->videoContent) {
+                $media->video($this->videoContent);
             }
-            if ($this->audioUrl) {
-                $media->audio($this->audioUrl);
+            if ($this->audioContent) {
+                $media->audio($this->audioContent);
             }
-            if ($this->fileUrl) {
-                $media->file($this->fileUrl);
+            if ($this->fileContent) {
+                $media->file($this->fileContent);
             }
             if ($this->captionText !== null) {
                 $media->caption($this->captionText);
@@ -262,10 +286,10 @@ class WhatsappGateway implements WhatsappGatewayInterface
         $this->deviceId       = null;
         $this->replyMessageId = null;
         $this->content        = null;
-        $this->imageUrl       = null;
-        $this->videoUrl       = null;
-        $this->audioUrl       = null;
-        $this->fileUrl        = null;
+        $this->imageContent   = null;
+        $this->videoContent   = null;
+        $this->audioContent   = null;
+        $this->fileContent    = null;
         $this->captionText    = null;
         $this->filenameText   = null;
         $this->viewOnceFlag   = null;

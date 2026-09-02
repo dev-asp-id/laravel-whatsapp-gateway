@@ -10,10 +10,10 @@ class WhatsappMediaMessage
     protected ?string $phone = null;
     protected ?string $deviceId = null;
 
-    protected ?string $imageUrl = null;
-    protected ?string $videoUrl = null;
-    protected ?string $audioUrl = null;
-    protected ?string $fileUrl = null;
+    protected mixed $imageContent = null;
+    protected mixed $videoContent = null;
+    protected mixed $audioContent = null;
+    protected mixed $fileContent = null;
     protected ?string $captionText = null;
     protected ?string $filenameText = null;
     protected ?bool $viewOnceFlag = null;
@@ -37,32 +37,56 @@ class WhatsappMediaMessage
         return $this;
     }
 
-    public function image(string $url): static
+    /**
+     * Set file gambar (URL publik, Base64 data URI, path lokal, SplFileInfo, atau UploadedFile).
+     */
+    public function image(mixed $content): static
     {
-        $this->imageUrl = $url;
+        $this->imageContent = $content;
 
         return $this;
     }
 
-    public function video(string $url): static
+    /**
+     * Set file video (URL publik, Base64 data URI, path lokal, SplFileInfo, atau UploadedFile).
+     */
+    public function video(mixed $content): static
     {
-        $this->videoUrl = $url;
+        $this->videoContent = $content;
 
         return $this;
     }
 
-    public function audio(string $url): static
+    /**
+     * Set file audio / voice note (URL publik, Base64 data URI, path lokal, SplFileInfo, atau UploadedFile).
+     */
+    public function audio(mixed $content): static
     {
-        $this->audioUrl = $url;
+        $this->audioContent = $content;
 
         return $this;
     }
 
-    public function file(string $url): static
+    /**
+     * Set dokumen / file (URL publik, Base64 data URI, path lokal, SplFileInfo, atau UploadedFile).
+     */
+    public function file(mixed $content, ?string $filename = null): static
     {
-        $this->fileUrl = $url;
+        $this->fileContent = $content;
+
+        if ($filename !== null) {
+            $this->filenameText = $filename;
+        }
 
         return $this;
+    }
+
+    /**
+     * Alias untuk file().
+     */
+    public function document(mixed $content, ?string $filename = null): static
+    {
+        return $this->file($content, $filename);
     }
 
     public function caption(string $caption): static
@@ -102,10 +126,10 @@ class WhatsappMediaMessage
     public function toMediaPayload(): array
     {
         return array_filter([
-            'image'     => $this->imageUrl,
-            'video'     => $this->videoUrl,
-            'audio'     => $this->audioUrl,
-            'file'      => $this->fileUrl,
+            'image'     => $this->imageContent,
+            'video'     => $this->videoContent,
+            'audio'     => $this->audioContent,
+            'file'      => $this->fileContent,
             'caption'   => $this->captionText,
             'filename'  => $this->filenameText,
             'view_once' => $this->viewOnceFlag,

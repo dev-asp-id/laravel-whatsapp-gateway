@@ -26,9 +26,59 @@ interface WhatsappGatewayInterface
     public function to(string $phone): static;
 
     /**
-     * Menambahkan video ke pesan media.
+     * Menentukan device ID yang digunakan.
      */
-    public function video(string $url): static;
+    public function usingDevice(string $deviceId): static;
+
+    /**
+     * Mereply pesan tertentu berdasarkan message ID.
+     */
+    public function replyTo(string $messageId): static;
+
+    /**
+     * Set isi teks pesan.
+     */
+    public function message(string $content): static;
+
+    /**
+     * Menambahkan gambar ke pesan media (URL publik, Base64 data URI, file path lokal, SplFileInfo, atau UploadedFile).
+     */
+    public function image(mixed $content): static;
+
+    /**
+     * Menambahkan video ke pesan media (URL publik, Base64 data URI, file path lokal, SplFileInfo, atau UploadedFile).
+     */
+    public function video(mixed $content): static;
+
+    /**
+     * Menambahkan audio ke pesan media (URL publik, Base64 data URI, file path lokal, SplFileInfo, atau UploadedFile).
+     */
+    public function audio(mixed $content): static;
+
+    /**
+     * Menambahkan file/dokumen ke pesan media (URL publik, Base64 data URI, file path lokal, SplFileInfo, atau UploadedFile).
+     */
+    public function file(mixed $content, ?string $filename = null): static;
+
+    /**
+     * Alias untuk file().
+     */
+    public function document(mixed $content, ?string $filename = null): static;
+
+    /**
+     * Set caption teks pada media.
+     */
+    public function caption(string $caption): static;
+
+    /**
+     * Set nama file custom pada media.
+     */
+    public function filename(string $filename): static;
+
+    /**
+     * Set opsi view once pada media (gambar / video).
+     */
+    public function viewOnce(bool $viewOnce = true): static;
 
     /**
      * Memvalidasi apakah nomor terdaftar di WhatsApp.
